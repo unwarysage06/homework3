@@ -32,7 +32,7 @@ class Classifier(nn.Module):
     def __init__(
         self,
         channel_output: int = 64,
-        n_blocks: int = 4,
+        n_blocks: int = 1,
     ):
         """
         A convolutional network for image classification.
