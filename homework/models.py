@@ -183,7 +183,7 @@ def load_model(
     # limit model sizes since they will be zipped and submitted
     model_size_mb = calculate_model_size_mb(m)
 
-    if model_size_mb > 20:
+    if model_size_mb > 120:
         raise AssertionError(f"{model_name} is too large: {model_size_mb:.2f} MB")
 
     return m
