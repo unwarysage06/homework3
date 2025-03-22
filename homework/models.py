@@ -32,7 +32,7 @@ class Classifier(nn.Module):
     def __init__(
         self,
         channel_output: int = 64,
-        n_blocks: int = 1,
+        n_blocks: int = 4,
     ):
         """
         A convolutional network for image classification.
@@ -43,8 +43,8 @@ class Classifier(nn.Module):
         """
         super().__init__()
 
-        #self.register_buffer("input_mean", torch.as_tensor(INPUT_MEAN))
-        #self.register_buffer("input_std", torch.as_tensor(INPUT_STD))
+        self.register_buffer("input_mean", torch.as_tensor(INPUT_MEAN))
+        self.register_buffer("input_std", torch.as_tensor(INPUT_STD))
 
         # TODO: implement
         layers = [  
@@ -70,10 +70,10 @@ class Classifier(nn.Module):
             tensor (b, num_classes) logits
         """
         # optional: normalizes the input
-        z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
+        #z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
 
         # TODO: replace with actual forward pass
-        logits = self.model(z)
+        logits = self.model(x).mean(dim=-1).mean(dim=-1)
 
         logits = torch.nn.functional.adaptive_avg_pool2d(logits, (1, 1))  # (B, 6, 1, 1)
         logits = logits.view(logits.size(0), -1)
