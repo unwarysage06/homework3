@@ -67,6 +67,10 @@ def train(
             loss.backward()
             optimizer.step()
             global_step += 1
+
+            # Compute and store training accuracy
+            acc = (pred.argmax(dim=1) == label).float().mean()
+            metrics["train_acc"].append(acc)
         epoch_train_acc = torch.as_tensor(metrics["train_acc"]).mean()
 
         # disable gradient computation and switch to evaluation mode
