@@ -9,26 +9,6 @@ INPUT_STD = [0.2064, 0.1944, 0.2252]
 
 
 class Classifier(nn.Module):
-    class Block(nn.Module):
-        def __init__(self, in_channels, out_channels,stride):
-            super().__init__()
-            kernel_size = 3
-            padding = (kernel_size - 1) // 2
-
-            self.c1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
-            self.n1 = nn.GroupNorm(1, out_channels)
-            self.c2 = nn.Conv2d(out_channels, out_channels, kernel_size, stride=1, padding=padding)
-            self.n2 = nn.GroupNorm(1, out_channels)
-            self.relu1 = nn.ReLU()
-            self.relu2 = nn.ReLU()
-
-
-            self.skip = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, padding=0) if in_channels != out_channels else torch.nn.Identity()
-
-        def forward(self, x0):
-            x = self.relu1(self.n1(self.c1(x0)))
-            x = self.relu2(self.n2(self.c2(x)))
-            return self.skip(x0) + x
     def __init__(
         self,
         channel_output: int = 64,
@@ -43,22 +23,18 @@ class Classifier(nn.Module):
         """
         super().__init__()
 
-        self.register_buffer("input_mean", torch.as_tensor(INPUT_MEAN))
-        self.register_buffer("input_std", torch.as_tensor(INPUT_STD))
-
-        # TODO: implement
-        layers = [  
-            torch.nn.Conv2d(3, channel_output, kernel_size=11, stride=2, padding=5),
-            torch.nn.ReLU(),
-            ]
-        
-        c1 = channel_output
-        for i in range(n_blocks):
-            c2 = c1 * 2
-            layers.append(self.Block(c1, c2, stride=2))
-            c1 = c2
-        layers.append(torch.nn.Conv2d(c1, 6, kernel_size=1, stride=2, padding=0))
-        self.model = torch.nn.Sequential(*layers)
+        super().__init__()
+        # Define the convolutional neural network
+        self.model = nn.Sequential(
+            nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1),  # Assuming 3 input channels
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Flatten(),
+            nn.Linear(32 * 8 * 8, 6),  # Adjust input size based on image dimensions
+        )
 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -73,8 +49,10 @@ class Classifier(nn.Module):
         #z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
 
         # TODO: replace with actual forward pass
-        logits = self.model(x).mean(-1).mean(-1)
-
+        # Reshape the input tensor to have spatial dimensions
+        x = x.view(x.size(0), 3, 32, 32)  # Assuming 32x32 input images
+        # TODO: replace with actual forward pass
+        logits = self.model(x) 
         return logits
 
     def predict(self, x: torch.Tensor) -> torch.Tensor:
