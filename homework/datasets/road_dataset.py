@@ -39,7 +39,16 @@ class RoadDataset(Dataset):
                 ]
             )
         elif transform_pipeline == "aug":
-            pass
+            xform = road_transforms.Compose(
+                [
+                    # TODO: fix
+                    road_transforms.RandomResizedCrop(128),
+                    road_transforms.ColorJitter(0.9, 0.9, 0.9, 0.1),
+                    road_transforms.RandomHorizontalFlip(),
+                    road_transforms.ToTensor(),
+                ]
+            )
+
 
         if xform is None:
             raise ValueError(f"Invalid transform {transform_pipeline} specified!")
@@ -67,7 +76,7 @@ class RoadDataset(Dataset):
 
 def load_data(
     dataset_path: str,
-    transform_pipeline: str = "default",
+    transform_pipeline: str = "aug",
     return_dataloader: bool = True,
     num_workers: int = 2,
     batch_size: int = 32,
