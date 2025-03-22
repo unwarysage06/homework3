@@ -84,7 +84,7 @@ def train_classification(
         epoch_train_acc = torch.as_tensor(metrics["train_acc"]).mean()
         epoch_val_acc = torch.as_tensor(metrics["val_acc"]).mean()
         logger.add_scalar("train_accuracy", epoch_train_acc, global_step=global_step)
-        logger.add_scalar("val_accuracy", epoch_val_acc, global_step=global_step)f
+        logger.add_scalar("val_accuracy", epoch_val_acc, global_step=global_step)
 
         # print on first, last, every 10th epoch
         if epoch == 0 or epoch == num_epoch - 1 or (epoch + 1) % 10 == 0:
