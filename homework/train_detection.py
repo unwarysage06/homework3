@@ -7,7 +7,7 @@ import torch
 import torch.utils.tensorboard as tb
 
 from .models import Detector, load_model, save_model
-from .datasets.drive_dataset import load_data
+from .datasets.road_dataset import load_data
 
 
 def train(
