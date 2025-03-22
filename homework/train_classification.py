@@ -63,7 +63,7 @@ def train(
 
             # TODO: implement training step
             pred = model(img)
-            loss = loss_func(pred, label)
+            loss = loss_func(pred)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()

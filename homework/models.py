@@ -43,8 +43,8 @@ class Classifier(nn.Module):
         """
         super().__init__()
 
-        self.register_buffer("input_mean", torch.as_tensor(INPUT_MEAN))
-        self.register_buffer("input_std", torch.as_tensor(INPUT_STD))
+        #self.register_buffer("input_mean", torch.as_tensor(INPUT_MEAN))
+        #self.register_buffer("input_std", torch.as_tensor(INPUT_STD))
 
         # TODO: implement
         layers = [  
