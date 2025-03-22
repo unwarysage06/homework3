@@ -15,7 +15,7 @@ def train(
     model_name: str = "classifier",
     num_epoch: int = 50,
     lr: float = 1e-3,
-    batch_size: int = 128,
+    batch_size: int = 64,
     seed: int = 2024,
     **kwargs,
 ):
