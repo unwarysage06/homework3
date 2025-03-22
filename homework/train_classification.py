@@ -36,13 +36,14 @@ def train(
     logger = tb.SummaryWriter(log_dir)
 
     # note: the grader uses default kwargs, you'll have to bake them in for the final submission
-    model = Classifier(in_channels=3, num_classes=6)
+    model = load_model(model_name, **kwargs)
     model = model.to(device)
     model.train()
 
     train_data = load_data("classification_data/train", shuffle=True, batch_size=batch_size, num_workers=2)
     val_data = load_data("classification_data/val", shuffle=False)
 
+    # create loss function and optimizer
     # optimizer = ...
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     global_step = 0
