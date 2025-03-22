@@ -10,9 +10,9 @@ from .models import  Classifier, load_model, save_model
 from .datasets.classification_dataset import load_data
 
 
-def train_classification(
+def train(
     exp_dir: str = "logs",
-    model_name: str = "Classifier",
+    model_name: str = "classifier",
     num_epoch: int = 50,
     lr: float = 1e-3,
     batch_size: int = 128,
@@ -115,4 +115,4 @@ if __name__ == "__main__":
     # parser.add_argument("--num_layers", type=int, default=3)
 
     # pass all arguments to train
-    train_classification(**vars(parser.parse_args()))
+    train(**vars(parser.parse_args()))

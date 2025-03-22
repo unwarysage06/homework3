@@ -44,9 +44,9 @@ class Classifier(nn.Module):
 
         # TODO: implement
         layers = [  
-            torch.nn.Conv2d(3, channel_output, kernel_size=11, stride=2, padding=5),
+            torch.nn.Conv2d(3, channel_output, kernel_size=3, stride=2, padding=1),
             torch.nn.ReLU(),
-        ]
+            ]
         
         c1 = channel_output
         for i in range(n_blocks):
@@ -183,7 +183,7 @@ def load_model(
     # limit model sizes since they will be zipped and submitted
     model_size_mb = calculate_model_size_mb(m)
 
-    if model_size_mb > 120:
+    if model_size_mb > 20:
         raise AssertionError(f"{model_name} is too large: {model_size_mb:.2f} MB")
 
     return m
