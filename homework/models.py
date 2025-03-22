@@ -73,7 +73,7 @@ class Classifier(nn.Module):
         #z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
 
         # TODO: replace with actual forward pass
-        logits = self.model(x).mean(dim=-1).mean(dim=-1)
+        logits = self.model(x).mean(dim=[2, 3])
 
         logits = torch.nn.functional.adaptive_avg_pool2d(logits, (1, 1))  # (B, 6, 1, 1)
         logits = logits.view(logits.size(0), -1)
