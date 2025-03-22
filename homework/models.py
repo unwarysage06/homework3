@@ -17,22 +17,18 @@ class Classifier(nn.Module):
 
             self.c1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
             self.n1 = nn.GroupNorm(1, out_channels)
-            self.c2 = nn.Conv2d(out_channels, out_channels, kernel_size, stride=1, padding=padding)
-            self.n2 = nn.GroupNorm(1, out_channels)
             self.relu1 = nn.ReLU()
-            self.relu2 = nn.ReLU()
 
 
             self.skip = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, padding=0) if in_channels != out_channels else torch.nn.Identity()
 
         def forward(self, x0):
             x = self.relu1(self.n1(self.c1(x0)))
-            x = self.relu2(self.n2(self.c2(x)))
-            return x
+            return self.skip(x0) + x
     def __init__(
         self,
         channel_output: int = 64,
-        n_blocks: int = 4,
+        n_blocks: int = 1,
     ):
         """
         A convolutional network for image classification.
@@ -73,7 +69,7 @@ class Classifier(nn.Module):
         z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
 
         # TODO: replace with actual forward pass
-        logits = self.model(z).mean(dim=-1).mean(dim=-1)
+        logits = self.model(x).mean(dim=-1).mean(dim=-1)
 
         return logits
 
