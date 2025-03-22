@@ -93,39 +93,6 @@ class Classifier(nn.Module):
 
 
 class Detector(torch.nn.Module):
-    class downConvolutionBlock(nn.Module):
-        def __init__(self, in_channels, out_channels,stride):
-            super().__init__()
-            kernel_size = 3
-            padding = (kernel_size - 1) // 2
-
-            self.c1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
-            self.n1 = nn.GroupNorm(1, out_channels)
-            self.c2 = nn.Conv2d(out_channels, out_channels, kernel_size, stride=2, padding=padding)
-            self.n2 = nn.GroupNorm(1, out_channels)
-            self.relu1 = nn.ReLU()
-            self.relu2 = nn.ReLU()
-
-            self.skip = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=4, padding=0) if in_channels != out_channels else torch.nn.Identity()
-        
-    class upConvolutionBlock(nn.Module):
-        def __init__(self, in_channels, out_channels):
-            super().__init__()
-            kernel_size = 3
-            padding = (kernel_size - 1) // 2
-
-            self.c1 = nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride=2, padding=padding)
-            self.n1 = nn.GroupNorm(1, out_channels)
-            self.c2 = nn.ConvTranspose2d(out_channels, out_channels, kernel_size, stride=2, padding=padding)
-            self.n2 = nn.GroupNorm(1, out_channels)
-            self.relu1 = nn.ReLU()
-            self.relu2 = nn.ReLU()
-
-            self.skip = nn.convTranspose2d(in_channels, out_channels, kernel_size=1, stride=4, padding=0) if in_channels != out_channels else torch.nn.Identity()
-        def forward(self, x0):
-            x = self.relu1(self.n1(self.c1(x0)))
-            x = self.relu2(self.n2(self.c2(x)))
-            return x + self.skip(x0)
     def __init__(
         self,
         in_channels: int = 3,
@@ -145,28 +112,28 @@ class Detector(torch.nn.Module):
 
         # TODO: implement
         self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=3, stride=1, padding=1)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.n1 = nn.GroupNorm(1, 64)
+        self.relu1 = nn.ReLU()
 
         self.conv2 = nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1)
-        self.bn2 = nn.BatchNorm2d(128)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.n2 = nn.GroupNorm(1, 128)
+        self.relu2 = nn.ReLU()
 
         self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1)
-        self.bn3 = nn.BatchNorm2d(256)
-        self.relu3 = nn.ReLU(inplace=True)
+        self.n3 = nn.GroupNorm(1, 256)
+        self.relu3 = nn.ReLU()
 
         self.conv4 = nn.Conv2d(256, 128, kernel_size=3, stride=1, padding=1)
-        self.bn4 = nn.BatchNorm2d(128)
-        self.relu4 = nn.ReLU(inplace=True)
+        self.n4 = nn.GroupNorm(1,128)
+        self.relu4 = nn.ReLU()
 
         self.conv5 = nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1)
-        self.bn5 = nn.BatchNorm2d(64)
-        self.relu5 = nn.ReLU(inplace=True)
+        self.n5 = nn.GroupNorm(1,64)
+        self.relu5 = nn.ReLU()
 
         self.conv6 = nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1)
-        self.bn6 = nn.BatchNorm2d(32)
-        self.relu6 = nn.ReLU(inplace=True)
+        self.n6 = nn.GroupNorm(1,32)
+        self.relu6 = nn.ReLU()
 
         self.segmentation_head = nn.Conv2d(32, num_classes, kernel_size=1)
         self.depth_head = nn.Conv2d(32, 1, kernel_size=1)
@@ -189,12 +156,12 @@ class Detector(torch.nn.Module):
         #z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
 
         # TODO: replace with actual forward pass
-        x = self.relu1(self.bn1(self.conv1(x)))
-        x = self.relu2(self.bn2(self.conv2(x)))
-        x = self.relu3(self.bn3(self.conv3(x)))
-        x = self.relu4(self.bn4(self.conv4(x)))
-        x = self.relu5(self.bn5(self.conv5(x)))
-        x = self.relu6(self.bn6(self.conv6(x)))
+        x = self.relu1(self.n1(self.conv1(x)))
+        x = self.relu2(self.n2(self.conv2(x)))
+        x = self.relu3(self.n3(self.conv3(x)))
+        x = self.relu4(self.n4(self.conv4(x)))
+        x = self.relu5(self.n5(self.conv5(x)))
+        x = self.relu6(self.n6(self.conv6(x)))
 
         logits = self.segmentation_head(x)
         raw_depth = self.depth_head(x).squeeze(1)
