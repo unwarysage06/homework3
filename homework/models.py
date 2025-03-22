@@ -17,13 +17,17 @@ class Classifier(nn.Module):
 
             self.c1 = nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding)
             self.n1 = nn.GroupNorm(1, out_channels)
+            self.c2 = nn.Conv2d(out_channels, out_channels, kernel_size, stride=1, padding=padding)
+            self.n2 = nn.GroupNorm(1, out_channels)
             self.relu1 = nn.ReLU()
+            self.relu2 = nn.ReLU()
 
 
             self.skip = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, padding=0) if in_channels != out_channels else torch.nn.Identity()
 
         def forward(self, x0):
             x = self.relu1(self.n1(self.c1(x0)))
+            x = self.relu2(self.n2(self.c2(x)))
             return self.skip(x0) + x
     def __init__(
         self,
@@ -44,16 +48,16 @@ class Classifier(nn.Module):
 
         # TODO: implement
         layers = [  
-            torch.nn.Conv2d(3, channel_output, kernel_size=3, stride=2, padding=1),
+            torch.nn.Conv2d(3, channel_output, kernel_size=11, stride=2, padding=5),
             torch.nn.ReLU(),
             ]
         
         c1 = channel_output
         for i in range(n_blocks):
             c2 = c1 * 2
-            layers.append(self.Block(c1, c2, stride=1)) 
+            layers.append(self.Block(c1, c2, stride=2))
             c1 = c2
-        layers.append(torch.nn.Conv2d(c1, 6, kernel_size=1, stride=1, padding=0))
+        layers.append(torch.nn.Conv2d(c1, 6, kernel_size=1, stride=2, padding=0))
         self.model = torch.nn.Sequential(*layers)
 
 
@@ -69,7 +73,10 @@ class Classifier(nn.Module):
         z = (x - self.input_mean[None, :, None, None]) / self.input_std[None, :, None, None]
 
         # TODO: replace with actual forward pass
-        logits = self.model(x).mean(dim=-1).mean(dim=-1)
+        logits = self.model(z)
+
+        logits = torch.nn.functional.adaptive_avg_pool2d(logits, (1, 1))  # (B, 6, 1, 1)
+        logits = logits.view(logits.size(0), -1)
 
         return logits
 
