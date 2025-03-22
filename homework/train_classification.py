@@ -115,4 +115,4 @@ if __name__ == "__main__":
     # parser.add_argument("--num_layers", type=int, default=3)
 
     # pass all arguments to train
-    train(**vars(parser.parse_args()))
+    train_classification(**vars(parser.parse_args()))
