@@ -39,7 +39,8 @@ class SuperTuxDataset(Dataset):
             xform = transforms.Compose(
                 [
                     # TODO: fix
-                    # transforms.ColorJitter(0.9, 0.9, 0.9, 0.1),
+                    transforms.RandomResizedCrop(64),
+                    #transforms.ColorJitter(0.9, 0.9, 0.9, 0.1),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
                 ]
@@ -66,7 +67,7 @@ class SuperTuxDataset(Dataset):
 
 def load_data(
     dataset_path: str,
-    transform_pipeline: str = "default",
+    transform_pipeline: str = "aug",
     return_dataloader: bool = True,
     num_workers: int = 2,
     batch_size: int = 128,
