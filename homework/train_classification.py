@@ -67,6 +67,7 @@ def train(
             loss.backward()
             optimizer.step()
             global_step += 1
+        epoch_train_acc = torch.as_tensor(metrics["train_acc"]).mean()
 
         # disable gradient computation and switch to evaluation mode
         with torch.inference_mode():
@@ -80,7 +81,6 @@ def train(
                 acc = (pred.argmax(dim=1) == label).float().mean()  
                 metrics["val_acc"].append(acc)
         # log average train and val accuracy to tensorboard
-        epoch_train_acc = torch.as_tensor(metrics["train_acc"]).mean()
         epoch_val_acc = torch.as_tensor(metrics["val_acc"]).mean()
         logger.add_scalar("train_accuracy", epoch_train_acc, global_step=global_step)
         logger.add_scalar("val_accuracy", epoch_val_acc, global_step=global_step)
